@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Time Length Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.min.js"></script>
+
+</head>
+
+<body>
+    <div class="wrapper">
+        <button id="recorderChartsToggle" onclick="RCToggle()">Charts</button>
+        <button onclick="export_csv(save, 'data')">export</button>
+        <input type="file" id="uploadfile" onchange="readImage(this)">
+        <div id="main-container">
+            <div id="main-box">
+                <div>
+                    <h1></h1>
+                </div>
+                <div id="left-box">
+                    <h1 id="left">00:00:00</h1>
+                </div>
+                <div id="timeDone-box">
+                    <div>
+                        <h2 id="digitalPainting">00:00:00</h2>
+                        <div id="button" class="button" onclick="recordPainting()">
+                            <img id="img1" class="grow" src="paint.svg">
+                            <img id="img2" class="grow" src="timing.svg">
+                        </div>
+                    </div>
+                    <div>
+                        <h2 id="coding">00:00:00</h2>
+                        <div id="button2" class="button" onclick="recordCoding()">
+                            <img id="img3" class="grow" src="code.svg">
+                            <img id="img4" class="grow" src="timing.svg">
+                        </div>
+                    </div>
+                </div>
+                <div id="timeDone-box2">
+                    <div>
+                        <h2 id="learnRandom">00:00:00</h2>
+                        <div id="button3" class="button" onclick="recordRandom()">
+                            <img id="img5" class="grow" src="random.svg">
+                            <img id="img6" class="grow" src="timing.svg">
+                        </div>
+                    </div>
+                    <div>
+                        <h2 id="play">00:00:00</h2>
+                        <div id="button4" class="button" onclick="recordPlay()">
+                            <img id="img7" class="grow" src="play.svg">
+                            <img id="img8" class="grow" src="timing.svg">
+                        </div>
+                    </div>
+                </div>
+
+
+                <!--
+                <div id="record-box">
+                    <div id="studyRecord">
+                        <div>
+                            <h2>digitalPainting</h2>
+                        </div>
+                        <div id="studyListBox">
+                            <ul id="studyTimeListDate">
+
+                            </ul>
+                            <ul id="studyTimeListStart">
+
+                            </ul>
+                            <ul id="studyTimeListEnd">
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div id="playRecord">
+                        <div>
+                            <h2>Used</h2>
+                        </div>
+                        <div id="playListBox">
+                            <ul id="playTimeListDate">
+                            </ul>
+                            <ul id="playTimeListStart">
+                            </ul>
+                            <ul id="playTimeListEnd">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                -->
+            </div>
+            <div id="main-box2">
+                <div id="chart-box">
+                    <canvas id="line-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>
+
+<style>
+    .wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #FFE0AF;
+        background-image:
+            linear-gradient(45deg, #FFDD88 25%, transparent 25%, transparent 75%, #FFDD88 75%, #FFDD88),
+            linear-gradient(45deg, #FFDD88 25%, transparent 25%, transparent 75%, #FFDD88 75%, #FFDD88),
+            linear-gradient(45deg, transparent, transparent 50%, #FFC87F 50%, #FFC87F);
+        background-size: 100px 100px;
+        background-position: 0 0, 50px 50px, 50px 0px;
+        -webkit-animation: scroll 5s linear infinite;
+    }
+
+    @-webkit-keyframes scroll {
+        from {
+            background-position: 0 0, 50px 50px, 50px 0;
+        }
+
+        to {
+            background-position: -100px -100px, -50px -50px, -50px -100px;
+        }
+    }
+
+
+    :root {
+        --containerBg: #222;
+        --boxBg1: #3cb0a7;
+        --boxBg2: #bea44c;
+        --white: #fff9e3;
+    }
+
+    * {
+        box-sizing: border-box;
+        border: 0;
+        margin: 0;
+    }
+
+    #main-container {
+        width: 100vw;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #main-box,
+    #main-box2 {
+        max-width: 800px;
+        padding: 50px;
+        background-color: var(--white);
+        border-radius: 70px;
+        box-shadow: 10px 10px 10px rgba(210, 105, 30, 0.3);
+    }
+
+    #main-box2 {
+        display: none;
+    }
+
+    #chart-box {
+        background-color: #fff9e3;
+        width: 400px;
+    }
+
+    #left-box {
+        height: 100px;
+        width: 100%;
+        background-color: var(--boxBg1);
+        border-radius: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+
+    #left {
+        color: var(--white);
+    }
+
+    #timeDone-box,
+    #timeDone-box2 {
+        width: 100%;
+        display: flex;
+        justify-content: space-evenly;
+        margin-bottom: 15px;
+        border-radius: 25px;
+        padding: 12px;
+        background-color: #fff9e3;
+    }
+
+    #timeDone-box div,
+    #timeDone-box2 div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 10px;
+        color: var(--white);
+    }
+
+    #digitalPainting,
+    #coding,
+    #learnRandom,
+    #play {
+        color: #473529;
+        font-size: 30px;
+        margin-bottom: 10px;
+    }
+
+    .button {
+        width: 150px;
+        height: 150px;
+        border-radius: 40px;
+        box-shadow: 5px 5px 5px rgba(210, 105, 30, 0.4);
+        padding: 15px;
+    }
+
+    #img1,
+    #img2,
+    #img3,
+    #img4,
+    #img5,
+    #img6,
+    #img7,
+    #img8 {
+        height: 100%;
+    }
+
+    #img2,
+    #img4,
+    #img6,
+    #img8 {
+        display: none;
+    }
+
+    /* 
+    #record-box {
+        width: 100%;
+        background-color: #f7cb68;
+        display: flex;
+        justify-content: space-evenly;
+        color: white;
+    }
+
+    #record-box li {
+        list-style: none;
+        color: var(--white);
+    }
+
+    #record-box li {
+        list-style: none;
+        color: var(--white);
+    }
+    */
+
+    #button:hover,
+    #button2:hover,
+    #button3:hover,
+    #button4:hover {
+        cursor: pointer;
+    }
+
+    /*
+    #studyListBox,
+    #playListBox {
+        display: flex;
+    }
+    */
+
+    .grow {
+        transition: all .2s ease-in-out;
+    }
+
+    .grow:hover {
+        transform: scale(1.1);
+    }
+</style>
+
+<script>
+
+    let listTag;
+    let list;
+    let timeString;
+    let timing = [0, 0];
+    let date = [0, 0, 0, 0, 0];
+    let dateObj = new Date();
+    let timeNow = [0, 0, 0, 0];
+    let timeGrow = [0, 0, 0, 0, 0, 0];
+    let timeResult = [0, 0, 0, 0];
+    let timeLeft = [0, 0];
+    let swch = [true, true, true, true];
+    let ctx = document.getElementById('line-chart');
+
+
+    /* ---------------------------------------------Recorder/Charts toggle------------------------------------------------------ */
+
+    let recorderChartsToggle = document.getElementById('recorderChartsToggle');
+    let mainBox = document.getElementById('main-box');
+    let mainBox2 = document.getElementById('main-box2');
+    let toggleSwch = true;
+
+    function RCToggle() {
+        if (toggleSwch) {
+            toggleSwch = !toggleSwch;
+            recorderChartsToggle.innerHTML = 'Recorder';
+            mainBox.style.display = "none";
+            mainBox2.style.display = "block";
+        } else {
+            toggleSwch = !toggleSwch;
+            recorderChartsToggle.innerHTML = 'Charts';
+            mainBox.style.display = "block";
+            mainBox2.style.display = "none";
+        }
+
+    }
+
+    /* -------------------------------create <li> and its text, then attach them to an HTML element--------------- */
+
+    function addToList(elementId, text) {
+        listTag = document.createElement('li');
+        listTag.appendChild(document.createTextNode(text));
+        list = document.getElementById(elementId);
+        list.appendChild(listTag);
+    }
+
+
+    /* ---------------------------------milliseconds to the time format 'xx:xx:xx' as string------------------ */
+
+    function convertMS(ms) {
+        let hour, minute, second;
+        let timeCalculate = ms;
+        hour = Math.floor(timeCalculate / 3600000);
+        timeCalculate = timeCalculate - hour * 3600000;
+        minute = Math.floor(timeCalculate / 60000);
+        timeCalculate = timeCalculate - minute * 60000;
+        second = Math.floor(timeCalculate / 1000);
+        if (hour < 10) { hour = "0" + hour.toString(); }
+        if (minute < 10) { minute = "0" + minute.toString(); }
+        if (second < 10) { second = "0" + second.toString(); }
+        return hour + ":" + minute + ":" + second;
+    }
+
+
+    /* ---------------------------------------milliseconds to minutes as integer--------------------------- */
+
+    function convertToMin(ms) {
+        let minute;
+        let timeCalculate = ms;
+        minute = Math.floor(timeCalculate / 60000);
+        return minute;
+    }
+
+    /* ---------------------------------------milliseconds to hours as integer--------------------------- */
+
+    function convertToHour(ms) {
+        let hour;
+        let timeCalculate = ms;
+        hour = timeCalculate / 3600000;
+        return hour;
+    }
+
+
+    /* --------------------------------------time in xx:xx:xx format as string------------------------------------ */
+
+    function getTime() {
+        let hour = dateObj.getHours();
+        let minute = dateObj.getMinutes();
+        let second = dateObj.getSeconds();
+        if (hour < 10) { hour = "0" + hour.toString(); }
+        if (minute < 10) { minute = "0" + minute.toString(); }
+        if (second < 10) { second = "0" + second.toString(); }
+        return hour + ':' + minute + ':' + second;
+    }
+
+
+    /* ----------------------------------date in the format xxxx/x/x as string------------------------------------- */
+
+    function getDate() {
+        month = dateObj.getMonth() + 1;
+        return dateObj.getFullYear() + '/' + month + '/' + dateObj.getDate()
+    }
+
+
+    /* ---------------------------------linechart calling function-------------------------------------------------- */
+
+    let myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Study',
+                data: [],
+                backgroundColor: ['rgba(54, 162, 235, 0)'],
+                borderColor: ['rgba(54, 162, 235, 1)'],
+                borderWidth: 3
+            },
+            {
+                label: 'Leisure',
+                data: [],
+                backgroundColor: ['rgba(234, 135, 250, 0)'],
+                borderColor: ['rgba(234, 135, 250, 1)'],
+                borderWidth: 3
+            },
+            ]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        display: false
+                    }
+                }]
+            }
+        }
+    });
+
+    /* --------------------------------------------------------------------------------------------- */
+/*
+    setInterval(function () {
+        dateObj = new Date();
+        let dateNow = getDate();
+        if (dateNow != date[9]) {
+            myChart.data.labels.push(dateNow);
+            myChart.data.datasets[0].data[myChart.data.labels.length - 1] = 0;
+            myChart.data.datasets[1].data[myChart.data.labels.length - 1] = 0
+            myChart.update();
+            date[9] = dateNow;
+            timeGrow[0] = timeGrow[2] = timeGrow[4] = timeGrow[6] = 0;
+        }
+    }, 1000)
+
+*/
+    /* ----------------------------activate or deactivate the buttons------------------------------------------ */
+
+    function btnDeact(imgID, imgID2, imgID3, imgID4, imgID5, btnID, btnID2, btnID3) {
+        document.getElementById(imgID).style.display = "none";
+        document.getElementById(imgID2).style.display = "block";
+        document.getElementById(imgID3).style.filter = document.getElementById(imgID4).style.filter = document.getElementById(imgID5).style.filter = "grayscale(100%)";
+        document.getElementById(imgID3).style.filter = document.getElementById(imgID4).style.filter = document.getElementById(imgID5).style.filter = "brightness(50%)";
+        document.getElementById(btnID).onclick = document.getElementById(btnID2).onclick = document.getElementById(btnID3).onclick = "";
+    }
+    function btnAct(imgID, imgID2, imgID3, imgID4, imgID5, btnID, function1, btnID2, function2, btnID3, function3) {
+        document.getElementById(imgID).style.display = "block";
+        document.getElementById(imgID2).style.display = "none";
+        document.getElementById(imgID3).style.filter = document.getElementById(imgID4).style.filter = document.getElementById(imgID5).style.filter = "grayscale(0)";
+        document.getElementById(imgID3).style.filter = document.getElementById(imgID4).style.filter = document.getElementById(imgID5).style.filter = "brightness(100%)";
+        document.getElementById(btnID).setAttribute("onClick", function1);
+        document.getElementById(btnID2).setAttribute("onClick", function2);
+        document.getElementById(btnID3).setAttribute("onClick", function3);
+    }
+
+
+    /* --------------------------------------------------------------------------------------------- */
+
+    function recordPainting() {
+        if (swch[0]) {
+            swch[0] = !swch[0];
+            if (getDate() !== date[0]) {
+                date[0] = getDate();
+                timeGrow[4] = 0;
+            }
+            btnDeact('img1', 'img2', 'img3', 'img5', 'img7', 'button2', 'button3', 'button4');
+            timeNow[0] = Date.now();
+            timing[0] = setInterval(function () {
+                let timePerSecond = Date.now();
+                timeGrow[0] = timePerSecond - timeNow[0];
+                document.getElementById('digitalPainting').innerHTML = convertMS(timeGrow[0] + timeResult[0]);
+            }, 1000);
+        } else {
+            swch[0] = !swch[0];
+            btnAct('img1', 'img2', 'img3', 'img5', 'img7', 'button2', "recordCoding()", 'button3', "recordRandom()", 'button4', "recordPlay()");
+            timeResult[0] = timeResult[0] + timeGrow[0];
+            clearInterval(timing[0]);
+            timeLeft[0] = timeResult[0] + timeResult[1] + timeResult[2] - timeResult[3];
+            timeLeft[1] = timeLeft[0];
+            document.getElementById('left').innerText = convertMS(timeLeft[0]);
+            timeGrow[4] = timeGrow[4] + timeGrow[0];
+
+            myChart.data.datasets[0].data[myChart.data.labels.length - 1] = convertToHour(timeGrow[4]);
+            myChart.update();
+        }
+    }
+
+
+    /* --------------------------------------------------------------------------------------------- */
+
+    function recordCoding() {
+        if (swch[1]) {
+            swch[1] = !swch[1];
+            if (getDate() !== date[0]) {
+                date[0] = getDate();
+                timeGrow[4] = 0;
+            }
+            btnDeact('img3', 'img4', 'img1', 'img5', 'img7', 'button', 'button3', 'button4');
+            timeNow[1] = Date.now();
+            timing[1] = setInterval(function () {
+                let timePerSecond = Date.now();
+                timeGrow[1] = timePerSecond - timeNow[1];
+                document.getElementById('coding').innerHTML = convertMS(timeGrow[1] + timeResult[1]);
+            }, 1000);
+        } else {
+            swch[1] = !swch[1];
+            btnAct('img3', 'img4', 'img1', 'img5', 'img7', 'button', "recordPainting()", 'button3', "recordRandom()", 'button4', "recordPlay()");
+            timeResult[1] = timeResult[1] + timeGrow[1];
+            clearInterval(timing[1]);
+            timeLeft[0] = timeResult[0] + timeResult[1] + timeResult[2] - timeResult[3];
+            timeLeft[1] = timeLeft[0];
+            document.getElementById('left').innerText = convertMS(timeLeft[0]);
+
+            timeGrow[4] = timeGrow[4] + timeGrow[1];
+            myChart.data.datasets[0].data[myChart.data.labels.length - 1] = convertToHour(timeGrow[4]);
+            myChart.update();
+        }
+    }
+
+
+    /* --------------------------------------------------------------------------------------------- */
+
+    function recordRandom() {
+        if (swch[2] == true) {
+            swch[2] = !swch[2];
+            if (getDate() !== date[0]) {
+                date[0] = getDate();
+                timeGrow[4] = 0;
+            }
+            btnDeact('img5', 'img6', 'img1', 'img3', 'img7', 'button', 'button2', 'button4');
+            timeNow[2] = Date.now();
+            timing[2] = setInterval(function () {
+                let timePerSecond = Date.now();
+                timeGrow[2] = timePerSecond - timeNow[2];
+                document.getElementById('learnRandom').innerHTML = convertMS(timeGrow[2] + timeResult[2]);
+            }, 1000);
+        } else {
+            swch[2] = !swch[2];
+            btnAct('img5', 'img6', 'img1', 'img3', 'img7', 'button', "recordPainting()", 'button2', "recordCoding()", 'button4', "recordPlay()");
+            timeResult[2] = timeResult[2] + timeGrow[2];
+            clearInterval(timing[2]);
+            timeLeft[0] = timeResult[0] + timeResult[1] + timeResult[2] - timeResult[3];
+            timeLeft[1] = timeLeft[0];
+            document.getElementById('left').innerText = convertMS(timeLeft[0]);
+
+            timeGrow[4] = timeGrow[4] + timeGrow[2];
+            myChart.data.datasets[0].data[myChart.data.labels.length - 1] = convertToHour(timeGrow[4]);
+            myChart.update();
+        }
+    }
+
+
+    /* --------------------------------------------------------------------------------------------- */
+
+    function recordPlay() {
+        if (swch[3]) {
+            swch[3] = !swch[3];
+            if (getDate() !== date[0]) {
+                date[0] = getDate();
+                timeGrow[5] = 0;
+            }
+            btnDeact('img7', 'img8', 'img1', 'img3', 'img5', 'button', 'button2', 'button3');
+            timeNow[3] = Date.now();
+            timing[3] = setInterval(function () {
+                let timePerSecond2 = Date.now();
+                timeGrow[3] = timePerSecond2 - timeNow[3];
+                document.getElementById('play').innerHTML = convertMS(timeGrow[3] + timeResult[3]);
+            }, 1000);
+        } else {
+            swch[3] = !swch[3];
+            btnAct('img7', 'img8', 'img1', 'img3', 'img5', 'button', "recordPainting()", 'button2', "recordCoding()", 'button3', "recordRandom()");
+            timeResult[3] = timeResult[3] + timeGrow[3];
+            clearInterval(timing[3]);
+            if (timeLeft[0] < timeGrow[3]) {
+                document.getElementById('left').innerText = 'Leisure Time Overused';
+            } else {
+                timeLeft[0] = timeLeft[0] - timeGrow[3];
+                document.getElementById('left').innerText = convertMS(timeLeft[0]);
+            }
+            timeGrow[5] = timeGrow[3] + timeGrow[5];
+
+            myChart.data.datasets[1].data[myChart.data.labels.length - 1] = convertToHour(timeGrow[5]);
+        }
+    }
+
+    /* ------------------------------------------Number of days since 2021/10/25---------------------------------------------- */
+
+    let days = Math.floor((Date.now() - 1634641200000) / 86400000 + 1);
+
+    /* ------------------------------------------Adding elements to the chart basing on Number of days---------------------------------------------- */
+
+    for (let i = 0; i < days; i++) {
+        myChart.data.datasets[0].data.push(0);
+        myChart.data.datasets[1].data.push(0);
+        myChart.data.labels.push('');
+    }
+
+
+    /* ---------------------------------------------export data------------------------------------------------------ */
+
+    let exportData = [timeResult, timeLeft, myChart.data.datasets[0].data, myChart.data.datasets[1].data];
+    let save = [exportData];
+    /* -----
+                            
+                                不要忘了还要输出输入线图的数组； 
+                                ---- */
+    const export_csv = (arrayData, fileName) => {
+        arrayData.forEach(array => {
+            array.join();
+        });
+        let csvData = new Blob([arrayData], { type: 'text/csv' });
+        let csvUrl = URL.createObjectURL(csvData);
+        let hiddenElement = document.createElement('a');
+        hiddenElement.href = csvUrl;
+        hiddenElement.target = '_blank';
+        hiddenElement.download = fileName + '.csv';
+        hiddenElement.click();
+    }
+
+
+    /* --------------------------------------------read data----------------------------------------------------- */
+
+    var obj_csv = {
+        size: 0,
+        dataFile: []
+    };
+
+    function readImage(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.readAsBinaryString(input.files[0]);
+            reader.onload = function (e) {
+                obj_csv.size = e.total;
+                obj_csv.dataFile = e.target.result;
+                parseData(obj_csv.dataFile);
+            }
+        }
+    }
+
+    function parseData(data) {
+        let csvData = [];
+        let lbreak = data.split("\n");
+        lbreak.forEach(res => {
+            csvData.push(res.split(","));
+        });
+
+        timeResult[0] = parseInt(csvData[0][0], 10);
+        document.getElementById('digitalPainting').innerText = convertMS(timeResult[0]);
+        timeResult[1] = parseInt(csvData[0][1], 10);
+        document.getElementById('coding').innerText = convertMS(timeResult[1]);
+        timeResult[2] = parseInt(csvData[0][2], 10);
+        document.getElementById('learnRandom').innerText = convertMS(timeResult[2]);
+        timeResult[3] = parseInt(csvData[0][3], 10);
+        document.getElementById('play').innerText = convertMS(timeResult[3]);
+        timeLeft[0] = parseInt(csvData[0][4], 10);
+        document.getElementById('left').innerText = convertMS(timeLeft[0]);
+
+        for (let i = 0; i < days; i++) {
+        myChart.data.datasets[0].data[i] = parseInt(csvData[0][6 + i], 10);
+        myChart.data.datasets[1].data[i] = parseInt(csvData[0][6 + days + i], 10);
+    }
+        console.log(myChart.data.datasets[0].data);
+        myChart.update();
+        
+    }
+</script>
